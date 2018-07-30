@@ -3,7 +3,7 @@ let campoEmail = document.querySelector('#email');
 let botao = document.querySelector('button');
 let lista = document.querySelector('ul');
 
-function apagarItem(){
+function apagarItem() {
     let texto = this.previousElementSibling.innerHTML;
     let nome = texto.split("-")[0].trim();
 
@@ -14,7 +14,15 @@ function apagarItem(){
     })
 };
 
-function montarTela(cadastro){
+function atualizar(cadastro) {
+    fetch(`http://localhost:3000/email/${cadastro.nome}`, {
+
+    }).then(() => {
+        carregar();
+    })
+};
+
+function montarTela(cadastro) {
     let entrada = document.createElement('li');
     let texto = document.createElement('span');
     texto.innerHTML = `${cadastro.nome} - ${cadastro.email}`;
@@ -33,6 +41,8 @@ botao.addEventListener('click', () => {
         email: campoEmail.value
     }
 
+    atualizar(cadastro);
+
     campoNome.value = '';
     campoEmail.value = '';
 
@@ -43,19 +53,31 @@ botao.addEventListener('click', () => {
             'Content-type': 'application/json'
         }
     }).then(() => {
-       carregar();
+        // checarDb();
+        carregar();
     });
 });
 
-function carregar(){
+function carregar() {
     fetch('http://localhost:3000/emails').then((resposta) => {
         return resposta.json();
     }).then((cadastros) => {
         lista.innerHTML = '';
-        for(let cadastro of cadastros){
+        for (let cadastro of cadastros) {
             montarTela(cadastro);
         }
     });
 }
+
+// function checarDb() {
+//     fetch('http://localhost:3000/email/:nome').then((resposta) => {
+//         return resposta.json();
+//     }).then((cadastros) => {
+//         lista.innerHTML = '';
+//         for (let cadastro of cadastros) {
+//             montarTela(cadastro);
+//         }
+//     });
+// }
 
 carregar();

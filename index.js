@@ -30,41 +30,62 @@ app.get('/emails', (req, res) => {
 });
 
 app.get('/email/:nome', (req, res) => {
-    if(!req.params.nome){
-        return res.status(400).send({mensagem: "Nome e email são obrigatórios"});
+    if (!req.params.nome) {
+        return res.status(400).send({ mensagem: "Nome e email são obrigatórios" });
     }
     //.findone retorna apenas 1     req.params.nome   
-    req.db.collection('cadastros').findOne({nome: req.params.nome}, (err, cadastro) => {
+    req.db.collection('cadastros').findOne({ nome: req.params.nome }, (err, cadastro) => {
         return res.send(cadastro);
     });
 });
 
 //post   n usa params, usa body
 app.post('/email/cadastrar', (req, res) => {
-    if(!req.body.nome || !req.body.email){
+    if (!req.body.nome || !req.body.email) {
         //send devolte em formato json
-        return res.status(400).send({mensagem: "Nome e email são obrigatórios"});
+        return res.status(400).send({ mensagem: "Nome e email são obrigatórios" });
     }
     //insert cria
     req.db.collection('cadastros').insert(req.body, (err) => {
         console.log(err);
     });
 
-    res.send({mensagem: 'Cadastro realizado com sucesso!'});
+    res.send({ mensagem: 'Cadastro realizado com sucesso!' });
 });
 
-app.delete("/email/:nome",  (req, res) => {
-    if(!req.params.nome){
-        return res.status(400).send({mensagem: "Nome e email são obrigatórios"});
+app.delete("/email/:nome", (req, res) => {
+    if (!req.params.nome) {
+        return res.status(400).send({ mensagem: "Nome e email são obrigatórios" });
     }
-    req.db.collection('cadastros').deleteOne({nome: req.params.nome}, err => {
-        if(err){
+    req.db.collection('cadastros').deleteOne({ nome: req.params.nome }, err => {
+        if (err) {
             console.log(err);
         }
-        else{
-            return res.send({mensagem: "Usuário removido ocm sucesso"});
+        else {
+            return res.send({ mensagem: "Usuário removido ocm sucesso" });
         }
     });
+});
+
+app.post("/email/:nome", (req, res) => {
+
+    let usuarios = req.db.collection('cadastros').find({}).toArray;
+
+    for(cadastro of usuarios){
+        if (req.params.nome === usuarios) {
+            return res.status(400).send({ mensagem: "Nome e email são obrigatórios" });
+        }
+        req.db.collection('cadastros').updateOne(
+            { nome: req.params.nome }, {$set: req.body}, err => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    return res.send({ mensagem: "Usuário atualizado com sucesso" });
+                }
+            });
+    }
+   
 });
 
 //inicia o daemon da aplicação
